@@ -6,6 +6,9 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.title().should('eq', 'Central de Atendimento ao Cliente TAT')
   })
   it('preenche os campos obrigatórios e envia o formulário', () => {
+    //Manuseando o tempo do navegador
+    cy.clock()
+    
     //Preenche o input First Name
     cy.get('#firstName').as('name')
     cy.get('@name').should('be.visible')
@@ -37,8 +40,15 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('.success').as('successMsg')
     cy.get('@successMsg').should('be.visible')
     cy.get('@successMsg').should('contain.text', 'Mensagem enviada com sucesso.')
+
+    //Verifica se a Mensagem desapareceu após 3 segundos
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   })
   it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', () => {
+    //Manuseando o tempo do navegador
+    cy.clock()
+    
     //Preenche o input First Name
     cy.get('#firstName').as('name')
     cy.get('@name').should('be.visible')
@@ -70,6 +80,10 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('.error').as('errorMsg')
     cy.get('@errorMsg').should('be.visible')
     cy.get('@errorMsg').should('contain.text', 'Valide os campos obrigatórios!')
+
+    //Verifica se a Mensagem desapareceu após 3 segundos
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   })
   it('Verifica phone input só recebe números', () => {
     cy.get('#phone')
@@ -77,6 +91,9 @@ describe('Central de Atendimento ao Cliente TAT', () => {
       .should('have.value', '')
   })
   it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', ()=>{
+    //Manuseando o tempo do navegador
+    cy.clock()
+    
     //Preenche o input First Name
     cy.get('#firstName').as('name')
     cy.get('@name').should('be.visible')
@@ -111,6 +128,10 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('.error').as('errorMsg')
     cy.get('@errorMsg').should('be.visible')
     cy.get('@errorMsg').should('contain.text', 'Valide os campos obrigatórios!')
+
+    //Verifica se a Mensagem desapareceu após 3 segundos
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   })
   it('Verifica se o campo foi limpo', ()=>{
     //Preenche o input First Name
@@ -155,6 +176,9 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('@errorMsg').should('contain.text', 'Valide os campos obrigatórios!')
   })
   it('envia o formuário com sucesso usando um comando customizado', ()=>{
+    //Manuseando o tempo do navegador
+    cy.clock()
+    
     const data = {
       firstName: "Marco",
       lastName: "Barbosa",
@@ -167,14 +191,25 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('.success').as('successMsg')
     cy.get('@successMsg').should('be.visible')
     cy.get('@successMsg').should('contain.text', 'Mensagem enviada com sucesso.')
+
+    //Verifica se a Mensagem desapareceu após 3 segundos
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   })
   it('envia o formuário com sucesso usando um comando customizado com valores defaut', ()=>{
+    //Manuseando o tempo do navegador
+    cy.clock()
+    
     cy.fillMandatoryFieldsAndSubmit()
 
     //Verifica se Mensagem de Enviado com Sucesso aparece na tela
     cy.get('.success').as('successMsg')
     cy.get('@successMsg').should('be.visible')
     cy.get('@successMsg').should('contain.text', 'Mensagem enviada com sucesso.')
+
+    //Verifica se a Mensagem desapareceu após 3 segundos
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   })
   it('seleciona um produto (YouTube) por seu texto', ()=>{
     cy.get('#product')
@@ -249,5 +284,52 @@ describe('Central de Atendimento ao Cliente TAT', () => {
       .click()
     cy.contains('h1','CAC TAT - Política de Privacidade')
       .should('be.visible')
+  })
+  it('exibe e oculta as mensagens de sucesso e erro usando .invoke()', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
+  it('preenche o campo da área de texto usando o comando invoke',() => {
+    cy.get('#open-text-area')
+      .invoke('val', 'texto copiado diretamente na text area')
+      .should('have.value', 'texto copiado diretamente na text area')
+  })
+  it('faz uma requisição http', () => {
+    cy.request('https://cac-tat-v3.s3.eu-central-1.amazonaws.com/index.html')
+      .as('getRequest')  
+      .its('body')
+      .should('include', 'CAC TAT')
+    
+    cy.request('@getRequest')
+      .its('status')
+      .should('be.equal', 200)
+
+    cy.request('@getRequest')
+      .its('statusText')
+      .should('be.equal', 'OK')
+  })
+  it.only('encontrat o gato', () => {
+    cy.get('#cat')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+
+    cy.get('#title')
+      .invoke('text', 'CAT TAT')
+
+    cy.get('#subtitle')
+      .invoke('text', 'Eu não amo 💔 gatos, sorry!')
   })
 })
