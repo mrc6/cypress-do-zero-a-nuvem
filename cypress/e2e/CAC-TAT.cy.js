@@ -320,7 +320,7 @@ describe('Central de Atendimento ao Cliente TAT', () => {
       .its('statusText')
       .should('be.equal', 'OK')
   })
-  it.only('encontrat o gato', () => {
+  it('encontrat o gato', () => {
     cy.get('#cat')
       .should('not.be.visible')
       .invoke('show')
